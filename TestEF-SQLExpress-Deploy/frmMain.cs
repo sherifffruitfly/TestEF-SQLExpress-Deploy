@@ -10,11 +10,21 @@ using System.Windows.Forms;
 
 namespace TestEF_SQLExpress_Deploy
 {
-    public partial class Form1 : Form
+    public partial class frmMain : Form
     {
-        public Form1()
+        public frmMain()
         {
             InitializeComponent();
+        }
+
+        private void btnExit_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void btnGo_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("sup!");
         }
     }
 }
