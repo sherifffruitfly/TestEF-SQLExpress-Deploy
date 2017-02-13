@@ -19,7 +19,7 @@ namespace TestEF_SQLExpress_Deploy
 
 		public frmMain()
 		{
-            SetConnectionString();
+			SetConnectionString();
 			InitializeComponent();
 		}
 
@@ -41,22 +41,49 @@ namespace TestEF_SQLExpress_Deploy
 			}
 		}
 
+		private void ResetDatabase()
+		{
+			using (TestEFDeployEntities db = new TestEFDeployEntities(connstr))
+			{
+				db.Database.ExecuteSqlCommand("truncate table TestTable");
+				db.SaveChanges();
+
+				TestTable tt1 = new TestTable();
+				tt1.DataValue = "this is record 1";
+				db.TestTables.Add(tt1);
+				db.SaveChanges();
+
+				TestTable tt2 = new TestTable();
+				tt2.DataValue = "this is record 2";
+				db.TestTables.Add(tt2);
+				db.SaveChanges();
+
+				TestTable tt3 = new TestTable();
+				tt3.DataValue = "this is record 3";
+				db.TestTables.Add(tt3);
+				db.SaveChanges();
+
+				LoadListbox();
+				lbIDs.SelectedIndex = 0;
+			}
+		}
+
 		private void SetConnectionString()
 		{
-            if (System.Environment.MachineName == "CANTOR")
-            {
-                this.connstr = ConfigurationManager.ConnectionStrings["TestEFDeployEntities-away"].ConnectionString;
+			if (System.Environment.MachineName == "CANTOR")
+			{
+				this.connstr = ConfigurationManager.ConnectionStrings["TestEFDeployEntities-away"].ConnectionString;
 
-            }
-            else if (System.Environment.MachineName == "GAUSS")
-            {
-                this.connstr = ConfigurationManager.ConnectionStrings["TestEFDeployEntities-home"].ConnectionString;
-            }
-            else
-            {
-                MessageBox.Show("Unrecognized computer; database not available.");
-                this.connstr = string.Empty;
-            }
+			}
+			else if (System.Environment.MachineName == "GAUSS")
+			{
+				this.connstr = ConfigurationManager.ConnectionStrings["TestEFDeployEntities-home"].ConnectionString;
+			}
+			else
+			{
+				MessageBox.Show("Unrecognized computer; database not available.");
+				this.connstr = string.Empty;
+			}
 		}
 
 		private void LoadListbox()
@@ -121,6 +148,34 @@ namespace TestEF_SQLExpress_Deploy
 
 				txtData.Text = mypkids[0].DataValue;
 			}
+		}
+
+		private void btnNew_Click(object sender, EventArgs e)
+		{
+			//create new testtable object
+			//save it, letting the identity 1, 1 get set
+			//reload listbox, go to appropriate index
+			//focus one data textbox
+
+			int myid = 0;
+			TestTable newtt = new TestTable();
+
+			//create the new record, get the pkid
+			using (TestEFDeployEntities db = new TestEFDeployEntities(connstr))
+			{
+				db.TestTables.Add(newtt);
+				db.SaveChanges();
+
+				myid = newtt.pkid;
+			}
+
+			//reload the listbox
+			LoadListbox();
+		}
+
+		private void btnResetDB_Click(object sender, EventArgs e)
+		{
+			ResetDatabase();
 		}
 	}
 }
