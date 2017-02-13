@@ -8,14 +8,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Configuration;
 using DatabaseUtilities;
 
 namespace TestEF_SQLExpress_Deploy
 {
 	public partial class frmMain : Form
 	{
+		private string connstr = string.Empty;
+
 		public frmMain()
 		{
+            SetConnectionString();
 			InitializeComponent();
 		}
 
@@ -37,11 +41,29 @@ namespace TestEF_SQLExpress_Deploy
 			}
 		}
 
+		private void SetConnectionString()
+		{
+            if (System.Environment.MachineName == "CANTOR")
+            {
+                this.connstr = ConfigurationManager.ConnectionStrings["TestEFDeployEntities-away"].ConnectionString;
+
+            }
+            else if (System.Environment.MachineName == "GAUSS")
+            {
+                this.connstr = ConfigurationManager.ConnectionStrings["TestEFDeployEntities-home"].ConnectionString;
+            }
+            else
+            {
+                MessageBox.Show("Unrecognized computer; database not available.");
+                this.connstr = string.Empty;
+            }
+		}
+
 		private void LoadListbox()
 		{
 			// load up the pkid listbox
 			lbIDs.Items.Clear();
-			using (TestEFDeployEntities ctx = new TestEFDeployEntities())
+			using (TestEFDeployEntities ctx = new TestEFDeployEntities(this.connstr))
 			{
 				var mypkids = (from rows in ctx.TestTables
 							   select rows).ToList();
@@ -63,7 +85,7 @@ namespace TestEF_SQLExpress_Deploy
 			// save changes to the data field to the currently selected pkid record
 			int param = GetSelectedPKID();
 
-			using (TestEFDeployEntities ctx = new TestEFDeployEntities())
+			using (TestEFDeployEntities ctx = new TestEFDeployEntities(this.connstr))
 			{
 				TestTable savethis = (from rows in ctx.TestTables
 								where rows.pkid == param
@@ -91,7 +113,7 @@ namespace TestEF_SQLExpress_Deploy
 			int param = GetSelectedPKID();
 
 			// update data textbox with change in selected pkid
-			using (TestEFDeployEntities ctx = new TestEFDeployEntities())
+			using (TestEFDeployEntities ctx = new TestEFDeployEntities(this.connstr))
 			{
 				var mypkids = (from rows in ctx.TestTables
 							   where rows.pkid == param
