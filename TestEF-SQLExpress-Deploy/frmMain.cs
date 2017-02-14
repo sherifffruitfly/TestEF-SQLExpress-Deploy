@@ -21,7 +21,9 @@ namespace TestEF_SQLExpress_Deploy
 		{
 			SetConnectionString();
 			InitializeComponent();
-		}
+            this.Text = "Test EF-Deploy - " + System.Environment.MachineName;
+
+        }
 
 		private void btnExit_Click(object sender, EventArgs e)
 		{
@@ -112,16 +114,19 @@ namespace TestEF_SQLExpress_Deploy
 			// save changes to the data field to the currently selected pkid record
 			int param = GetSelectedPKID();
 
-			using (TestEFDeployEntities ctx = new TestEFDeployEntities(this.connstr))
-			{
-				TestTable savethis = (from rows in ctx.TestTables
-								where rows.pkid == param
-								select rows).FirstOrDefault();
+            if (param > 0)
+            {
+                using (TestEFDeployEntities ctx = new TestEFDeployEntities(this.connstr))
+                {
+                    TestTable savethis = (from rows in ctx.TestTables
+                                          where rows.pkid == param
+                                          select rows).FirstOrDefault();
 
-				savethis.DataValue = txtData.Text;
+                    savethis.DataValue = txtData.Text;
 
-				ctx.SaveChanges();
-			}
+                    ctx.SaveChanges();
+                }
+            }
 		}
 
 		private int GetSelectedPKID()
@@ -129,10 +134,13 @@ namespace TestEF_SQLExpress_Deploy
 			int ret = 0;
 
 			var theone = lbIDs.SelectedItem;
-			//MessageBox.Show("selected: " + theone.ToString());
-			ret = Int32.Parse(theone.ToString());
+            //MessageBox.Show("selected: " + theone.ToString());
+            if (theone != null)
+            {
+                ret = Int32.Parse(theone.ToString());
+            }
 
-			return ret;
+            return ret;
 		}
 
 		private void lbIDs_SelectedIndexChanged(object sender, EventArgs e)
@@ -146,7 +154,10 @@ namespace TestEF_SQLExpress_Deploy
 							   where rows.pkid == param
 							   select rows).ToList();
 
-				txtData.Text = mypkids[0].DataValue;
+                if (mypkids != null && mypkids.Count > 0)
+                {
+                    txtData.Text = mypkids[0].DataValue;
+                }
 			}
 		}
 
